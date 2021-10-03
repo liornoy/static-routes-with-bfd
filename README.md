@@ -2,14 +2,12 @@
 In this document, I will describe how to set up an environment and simulate a BFD session (using [FRR](https://frrouting.org/))
 between Kind cluster with two nodes - and an external container.
 ## Prerequisites
-___
 - Go 1.15+
 - Python 3
 - KIND - Kubernetes in Docker
 - kubectl
 
 ## Setting up a development environment
-___
 Clone the metallb [repository](https://github.com/metallb/metallb).
 From the root of your git clone, run:
 
@@ -17,7 +15,6 @@ From the root of your git clone, run:
 
 This command will create a Kubernetes cluster with 2 nodes and a FRR container.
 ## Create the FRR pods
-___
 First you'll need to create a configmap with all the BFD configurations.
 After you cloned this repository, enter:
 
@@ -38,7 +35,6 @@ Apply the daemonset yaml:
 The daemonset will inject those files into the etc/frr directory in the FRR pods.
 
 ## Configure the FRR container
-___
 First, inspect the pod's IP addresses:
 
 `k get pods -o wide`
@@ -71,7 +67,6 @@ exit
 docker restart frr
 ```
 ## Test the BFD session
-___
 In this point, the BFD session should be up and running. Let's assert this:
 ```
 docker exec -it frr sh
@@ -95,7 +90,7 @@ SessionId  LocalAddress                             PeerAddress                 
 2917389698 172.18.0.5                               172.18.0.4                              up             
 1501100564 172.18.0.5                               172.18.0.3                              down 
 ```
-
+___
 For clean up enter:
 `inv dev-env-cleanup`
 
