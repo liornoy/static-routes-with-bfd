@@ -1,101 +1,56 @@
 # FRR BFD Session
-In this document, I will describe how to set up an environment and simulate a BFD session (using [FRR](https://frrouting.org/))
-between Kind cluster with two nodes - and an external container.
-## Prerequisites
-___
-- Go 1.15+
-- Python 3
-- KIND - Kubernetes in Docker
-- kubectl
 
-## Setting up a development environment
-___
-Clone the metallb [repository](https://github.com/metallb/metallb).
-From the root of your git clone, run:
+This version of the setup simulate a BFD connection between a Kubernetes cluster nodes to data center gateways that are more than one hop away. 
 
-`inv dev-env -p bgp`
+![diffNetVersion](https://user-images.githubusercontent.com/40122521/136552206-a8b42573-17c8-42ba-9750-0cd9cc61cbea.png)
 
-This command will create a Kubernetes cluster with 2 nodes and a FRR container.
-## Create the FRR pods
-___
-First you'll need to create a configmap with all the BFD configurations.
-After you cloned this repository, enter:
+The setup.sh script takes care of all the setup needed. the steps it makes are:
+1. Create a kind cluster with two worker nodes
+2. Create a docker sub-network called kind2
+3. Create the middle linux container and connect it to both networks
+4. Create two frr containers
+5. Edit configurations files
+6. Create configmap
+7. Apply the FRR daemonset
+8. Restart the containers to apply the configurations
+9. Add static routes
 
-`k create configmap frr-config --from-file=./configmap/`
+### Verify the BFD session is up
+To verify that the BFD session is up, enter one of the containers:
 
-The configmap folder includes:
+`docker exec -it frr1 sh`
+
+Enter to the vtysh (FRR's shell) and inspect the bfd peers:
+
 ```
-configmap
-|   daemons
-|   frr.conf
-|   vtysh.conf
-```
-
-Apply the daemonset yaml:
-
-`k apply -f daemonset.yaml`
-
-The daemonset will inject those files into the etc/frr directory in the FRR pods.
-
-## Configure the FRR container
-___
-First, inspect the pod's IP addresses:
-
-`k get pods -o wide`
-
-Then edit the frr.conf file inside the frr-container folder and paste the IP addresses:
-```
-bfd
- peer 172.18.0.X
-   no shutdown
- !
- peer 172.18.0.Y
-   no shutdown
- !
-!
-```
-Next, enter the FRR container:
-
-`docker exec -it frr sh`
-
-In daemons file edit bfdd from "no" to "yes".
-In frr.conf paste the contant of frr-container/frr.conf.
-```
-cd etc/frr
-vi daemons
-vi frr.conf
-```
-We then restart the container to apply the new configurations.
-```
-exit
-docker restart frr
-```
-## Test the BFD session
-___
-In this point, the BFD session should be up and running. Let's assert this:
-```
-docker exec -it frr sh
 vtysh
-sh bfd peers brief
-```
-The output should look like this:
-```
-Session count: 2
-SessionId  LocalAddress                             PeerAddress                             Status         
-=========  ============                             ===========                             ======         
-2917389698 172.18.0.5                               172.18.0.4                              up             
-1501100564 172.18.0.5                               172.18.0.3                              up  
-```
-Now, delete one of the pods from the kind cluster, and check the connectivity again from the container.
-This time it should look like this:
-```
-Session count: 2
-SessionId  LocalAddress                             PeerAddress                             Status         
-=========  ============                             ===========                             ======         
-2917389698 172.18.0.5                               172.18.0.4                              up             
-1501100564 172.18.0.5                               172.18.0.3                              down 
+show bfd peers brief
 ```
 
-For clean up enter:
-`inv dev-env-cleanup`
+Output should look like this:
+```
+Session count: 2
+SessionId  LocalAddress                             PeerAddress                             Status         
+=========  ============                             ===========                             ======         
+4161101689 172.19.0.3                               172.18.0.2                              up             
+1130635521 172.19.0.3                               172.18.0.3                              up 
+```
+
+### Simulate a failover
+
+To simulate a failover we'll delete one of the worker nodes:
+
+
+`kubectl delete node kind-worker`
+
+Then watch the BFD status from the container again:
+```
+Session count: 2
+SessionId  LocalAddress                             PeerAddress                             Status         
+=========  ============                             ===========                             ======         
+4161101689 172.19.0.3                               172.18.0.2                              up             
+1130635521 172.19.0.3                               172.18.0.3                              down 
+```
+## Simulate a failover
+Use the cleanup.sh script for deleting the environment
 
