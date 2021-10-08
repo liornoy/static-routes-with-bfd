@@ -1,6 +1,9 @@
 # FRR BFD Session
 In this document, I will describe how to set up an environment and simulate a BFD session (using [FRR](https://frrouting.org/))
 between Kind cluster with two nodes - and an external container.
+![sameNetVersion](https://user-images.githubusercontent.com/40122521/136550651-8072176c-fcaf-449f-989b-063afda0ca3b.png)
+
+
 ## Prerequisites
 - Go 1.15+
 - Python 3
