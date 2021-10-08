@@ -51,6 +51,6 @@ SessionId  LocalAddress                             PeerAddress                 
 4161101689 172.19.0.3                               172.18.0.2                              up             
 1130635521 172.19.0.3                               172.18.0.3                              down 
 ```
-## Simulate a failover
-Use the cleanup.sh script for deleting the environment
+#### Cleanup
+Use the cleanup.sh script to delete the environment
 
