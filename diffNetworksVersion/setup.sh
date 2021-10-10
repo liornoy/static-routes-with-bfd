@@ -7,8 +7,8 @@ echo "Creating frr containers"
 docker run --network kind2 -d -it --rm --name next-hop-router  alpine
 docker network connect kind next-hop-router 
 
-docker run --network kind2 -d --rm --name frr1 --cap-add=NET_ADMIN --cap-add=NET_RAW --cap-add=SYS_ADMIN -v "$(pwd)/frr1":/etc/frr frrouting/frr
-docker run --network kind2 -d --rm --name frr2 --cap-add=NET_ADMIN --cap-add=NET_RAW --cap-add=SYS_ADMIN -v "$(pwd)/frr2":/etc/frr frrouting/frr
+docker run --network kind2 -d --rm --name frr1 --privileged -v "$(pwd)/frr1":/etc/frr frrouting/frr
+docker run --network kind2 -d --rm --name frr2 --privileged -v "$(pwd)/frr2":/etc/frr frrouting/frr
 
 frr1_ip=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' frr1)
 frr2_ip=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' frr2)
