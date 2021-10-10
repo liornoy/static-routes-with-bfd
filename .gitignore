@@ -1,4 +1,4 @@
-*/frr.conf
-*/bfdd.cong
-*/zebra.conf
-*/staticd.conf
+frr.conf
+bfdd.conf
+zebra.conf
+staticd.conf
