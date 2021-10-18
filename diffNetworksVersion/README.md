@@ -12,7 +12,7 @@ The setup.sh script takes care of all the setup needed. the steps it makes are:
 5. Edit configurations files
 6. Create configmap
 7. Apply the FRR daemonset
-8. Restart the containers to apply the configurations
+8. Reload the FRR containers to apply the configurations
 9. Add static routes
 
 ### Verify the BFD session is up
