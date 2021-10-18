@@ -1,3 +1,7 @@
+ifrr_mount_path="etc/frr"
+config_file="frr.conf"
+
+
 kind create cluster --name kind --config cluster.yaml
 
 echo "Creating second docker network kind2" 
@@ -29,7 +33,8 @@ sed -i 's/IP_B/'"$frr2_ip"'/g' configmap/frr.conf
 
 kubectl create configmap frr-config --from-file=./configmap/
 kubectl apply -f daemonset.yaml
-docker restart frr1 frr2
+docker exec -it frr1 sh -c "python3 /usr/lib/frr/frr-reload.py --reload ${frr_mount_path}/${config_file}"
+docker exec -it frr2 sh -c "python3 /usr/lib/frr/frr-reload.py --reload ${frr_mount_path}/${config_file}"
 
 echo "Configuring static routes"
 docker exec  frr1 sh -c "ip route add 172.18.0.0/16 via 172.19.0.2 dev eth0"
