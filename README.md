@@ -9,4 +9,4 @@ Connection between two nodes and one external docker container - while all on th
 
 
 ### diffNetworks -
-connection between two nodes on one sub-network, and two external containers on different sub-network, and using middle container which functions like a router.
+Connection between two nodes on one sub-network, and two external containers on different sub-network, and using middle container which functions like a next-hop router.
