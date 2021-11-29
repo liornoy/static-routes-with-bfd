@@ -1,4 +1,4 @@
-ifrr_mount_path="etc/frr"
+frr_mount_path="etc/frr"
 config_file="frr.conf"
 
 
